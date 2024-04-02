@@ -5,6 +5,6 @@ namespace ChatServer.Infrastructure
 {
     public class SharedDB
     {
-        public ConcurrentDictionary<string, UserConnection> _connections { get; set; }
+        public ConcurrentDictionary<string, UserConnection> _connections { get; set; } = new();
     }
 }
