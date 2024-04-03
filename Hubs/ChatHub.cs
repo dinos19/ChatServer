@@ -30,8 +30,8 @@ namespace ChatServer.Hubs
             {
                 Action = ChatMessageAction.WHOISON,
                 Body = JsonConvert.SerializeObject(userConnections),
-                FromUser = "Admin",
-                ToUser = $"{connection?.ChatRoom}",
+                FromAccountId = 1,
+                ToAccountId = connection.AccountId,
                 Type = ChatMessageType.TEXT
             };
 
@@ -48,8 +48,8 @@ namespace ChatServer.Hubs
             {
                 Action = ChatMessageAction.ANNOUNCEMENTS,
                 Body = $"{connection.UserName} has left {connection.ChatRoom}",
-                FromUser = "Admin",
-                ToUser = $"{connection.ChatRoom}",
+                FromAccountId = 1,
+                ToAccountId = connection.AccountId,
                 Type = ChatMessageType.TEXT
             };
             await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
@@ -71,8 +71,8 @@ namespace ChatServer.Hubs
             {
                 Action = ChatMessageAction.ANNOUNCEMENTS,
                 Body = $"{connection.UserName} has joined {connection.ChatRoom}",
-                FromUser = "Admin",
-                ToUser = $"{connection.ChatRoom}",
+                FromAccountId = 1,
+                ToAccountId = connection.AccountId,
                 Type = ChatMessageType.TEXT
             };
             await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));

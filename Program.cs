@@ -1,6 +1,11 @@
 using ChatServer.Hubs;
 using ChatServer.Infrastructure;
+using ChatServer.Infrastructure.Repositories;
+using ChatServer.Infrastructure.Repositories.BaseAbstractions;
+using ChatServer.Services;
 using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +32,14 @@ builder.Services.AddCors(options =>
                       });
 });
 builder.Services.AddSingleton<SharedDB>();
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddTransient<AccountHandler>();
+builder.Services.AddTransient<AccountRepository>();
+builder.Services.AddTransient<ChatMessageRepository>();
+builder.Services.AddTransient<UserConnectionRepository>();
+builder.Services.AddTransient<IRepositoryWrapper, RepositoryWrapper>();
 
 var app = builder.Build();
 
