@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using ChatServer.Models.Entity;
 
 namespace ChatServer.Models
 {
@@ -29,6 +30,13 @@ namespace ChatServer.Models
         public ChatMessageType Type { get; set; }
         public string Body { get; set; }
         public int FromAccountId { get; set; }
+
+        [ForeignKey("FromAccountId")]
+        public virtual Account FromAccount { get; set; }
+
         public int ToAccountId { get; set; }
+
+        [ForeignKey("ToAccountId")]
+        public virtual Account ToAccount { get; set; }
     }
 }
