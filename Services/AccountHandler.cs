@@ -22,5 +22,18 @@ namespace ChatServer.Services
             else
                 return false;
         }
+
+        public async Task<List<Account>> GetAccountsWithOnlineStatusAsync()
+        {
+            var accounts = await Repos.Account.FindAllAsync();
+            var onlineAccountIds = (await Repos.UserConnection.FindAllAsync()).Select(x => x.AccountId);
+
+            foreach (var account in accounts)
+            {
+                account.IsOnline = onlineAccountIds.Contains(account.AccountId);
+            }
+
+            return accounts;
+        }
     }
 }

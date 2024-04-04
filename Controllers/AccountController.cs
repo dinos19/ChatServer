@@ -27,10 +27,20 @@ namespace ChatServer.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<bool> Login([FromBody] Account account)
+        public async Task<LoginResponse> Login([FromBody] Account account)
         {
+            LoginResponse loginResponse = new LoginResponse { IsLoggedIn = false };
             _logger.LogDebug("Login " + JsonConvert.SerializeObject(account));
-            return await AccountHandler.Login(account);
+            var isLoggedIn = await AccountHandler.Login(account);
+            if (isLoggedIn)
+            {
+                loginResponse = new LoginResponse
+                {
+                    IsLoggedIn = true,
+                    OnlineAccounts = await AccountHandler.GetAccountsWithOnlineStatusAsync()
+                };
+            }
+            return loginResponse;
         }
     }
 }

@@ -15,5 +15,8 @@ namespace ChatServer.Models.Entity
         public string Email { get; set; }
         public int GroupId { get; set; }
         public bool IsFriend { get; set; }
+
+        [NotMapped]
+        public bool IsOnline { get; set; }
     }
 }
