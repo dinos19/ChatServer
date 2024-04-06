@@ -43,6 +43,8 @@ namespace ChatServer.Services
 
             foreach (var account in accounts)
             {
+                account.Password = "";
+                account.Email = "";
                 account.IsOnline = onlineAccountIds.Contains(account.AccountId);
             }
 
