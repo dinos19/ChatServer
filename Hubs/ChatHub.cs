@@ -1,5 +1,7 @@
 ﻿using ChatServer.Infrastructure;
+using ChatServer.Infrastructure.Repositories;
 using ChatServer.Models;
+using ChatServer.Models.Entity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging.Debug;
 using Newtonsoft.Json;
@@ -12,10 +14,14 @@ namespace ChatServer.Hubs
     public class ChatHub : Hub
     {
         private readonly SharedDB _sharedDB;
+        private readonly UserConnectionRepository _userConnectionRepo;
+        private readonly ChatMessageRepository _chatMessageRepository;
 
-        public ChatHub(SharedDB sharedDB)
+        public ChatHub(SharedDB sharedDB, UserConnectionRepository userConnectionrepo, ChatMessageRepository chatMessageRepository)
         {
             _sharedDB = sharedDB;
+            _userConnectionRepo = userConnectionrepo;
+            _chatMessageRepository = chatMessageRepository;
         }
 
         public DebugLoggerProvider DebugLoggerProvider { get; }
@@ -28,16 +34,27 @@ namespace ChatServer.Hubs
 
             var message = new ChatMessage
             {
-                Action = ChatMessageAction.WHOISON,
-                Body = JsonConvert.SerializeObject(userConnections),
-                FromAccountId = 1,
-                ToAccountId = connection.AccountId,
+                Action = ChatMessageAction.HELLO,
+                Body = "",
+                FromAccountId = 0,
+                ToAccountId = 0,
                 Type = ChatMessageType.TEXT
             };
 
             await Clients.Caller.SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
 
             await base.OnConnectedAsync();
+        }
+
+        public async Task<UserConnection> SayHello(Account account)
+        {
+            return await _userConnectionRepo.CreateAsync(new UserConnection
+            {
+                AccountId = account.AccountId,
+                ChatRoom = account.Name,
+                ConnectionId = Context.ConnectionId,
+                UserName = account.Name
+            });
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -53,6 +70,8 @@ namespace ChatServer.Hubs
                 Type = ChatMessageType.TEXT
             };
             await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
+            await _userConnectionRepo.DeleteAsync(connection);
+
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -78,12 +97,22 @@ namespace ChatServer.Hubs
             await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
         }
 
-        public async Task SendMessage(string msg)
+        public async Task SendMessage(ChatMessage chatMessage)
         {
-            if (_sharedDB._connections.TryGetValue(Context.ConnectionId, out var connection))
+            if(chatMessage.Action == ChatMessageAction.NOACTION)
+                await _chatMessageRepository.CreateAsync(chatMessage);
+
+            var toUser = (await _userConnectionRepo.FindByConditionAsync(x => x.AccountId == chatMessage.ToAccountId)).FirstOrDefault();
+
+            if (toUser != null)
             {
-                await Clients.Group(connection.ChatRoom).SendAsync("ReceiveSpecificMessage", connection.UserName, msg);
+                await Clients.Client(toUser.ConnectionId).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(chatMessage));
             }
+
+            //if (_sharedDB._connections.TryGetValue(Context.ConnectionId, out var connection))
+            //{
+            //    await Clients.Group(connection.ChatRoom).SendAsync("ReceiveSpecificMessage", connection.UserName, msg);
+            //}
         }
     }
 }

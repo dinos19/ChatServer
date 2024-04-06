@@ -24,6 +24,25 @@ namespace ChatServer.Infrastructure
             modelBuilder.Entity<Account>()
                 .HasIndex(a => a.Email)
                 .IsUnique();
+            // Shadow properties
+            modelBuilder.Entity<ChatMessage>()
+                .Property<int>("FromAccountId");
+
+            modelBuilder.Entity<ChatMessage>()
+                .Property<int>("ToAccountId");
+
+            // Configure relationships using shadow properties
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne<Account>("FromAccount")
+                .WithMany()
+                .HasForeignKey("FromAccountId")
+                .OnDelete(DeleteBehavior.Restrict); // Adjust delete behavior as needed
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne<Account>("ToAccount")
+                .WithMany()
+                .HasForeignKey("ToAccountId")
+                .OnDelete(DeleteBehavior.Restrict); // Adjust delete behavior as needed
         }
     }
 }

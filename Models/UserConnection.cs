@@ -13,5 +13,6 @@ namespace ChatServer.Models
         public string UserName { get; set; }
         public string ChatRoom { get; set; }
         public int AccountId { get; set; }
+        public string ConnectionId { get; set; }
     }
 }

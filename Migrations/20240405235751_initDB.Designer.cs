@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatServer.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20240403204313_addOnlineUsers1")]
-    partial class addOnlineUsers1
+    [Migration("20240405235751_initDB")]
+    partial class initDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,18 +39,20 @@ namespace ChatServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FromUser")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("FromAccountId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ToUser")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ToAccountId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("ChatMessageId");
+
+                    b.HasIndex("FromAccountId");
+
+                    b.HasIndex("ToAccountId");
 
                     b.ToTable("ChatMessage");
                 });
@@ -63,6 +65,10 @@ namespace ChatServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
@@ -73,7 +79,14 @@ namespace ChatServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("AccountId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Account");
                 });
@@ -93,6 +106,10 @@ namespace ChatServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ConnectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -100,6 +117,25 @@ namespace ChatServer.Migrations
                     b.HasKey("UserConnectionId");
 
                     b.ToTable("UserConnection");
+                });
+
+            modelBuilder.Entity("ChatServer.Models.ChatMessage", b =>
+                {
+                    b.HasOne("ChatServer.Models.Entity.Account", "FromAccount")
+                        .WithMany()
+                        .HasForeignKey("FromAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChatServer.Models.Entity.Account", "ToAccount")
+                        .WithMany()
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FromAccount");
+
+                    b.Navigation("ToAccount");
                 });
 #pragma warning restore 612, 618
         }

@@ -20,7 +20,7 @@ namespace ChatServer.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<Account> Register([FromBody] Account account)
+        public async Task<List<Account>> Register([FromBody] Account account)
         {
             _logger.LogDebug("Just registered " + JsonConvert.SerializeObject(account));
             return await AccountHandler.RegisterAccount(account);

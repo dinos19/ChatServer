@@ -47,6 +47,10 @@ namespace ChatServer.Migrations
 
                     b.HasKey("ChatMessageId");
 
+                    b.HasIndex("FromAccountId");
+
+                    b.HasIndex("ToAccountId");
+
                     b.ToTable("ChatMessage");
                 });
 
@@ -99,6 +103,10 @@ namespace ChatServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ConnectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -106,6 +114,25 @@ namespace ChatServer.Migrations
                     b.HasKey("UserConnectionId");
 
                     b.ToTable("UserConnection");
+                });
+
+            modelBuilder.Entity("ChatServer.Models.ChatMessage", b =>
+                {
+                    b.HasOne("ChatServer.Models.Entity.Account", "FromAccount")
+                        .WithMany()
+                        .HasForeignKey("FromAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChatServer.Models.Entity.Account", "ToAccount")
+                        .WithMany()
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FromAccount");
+
+                    b.Navigation("ToAccount");
                 });
 #pragma warning restore 612, 618
         }

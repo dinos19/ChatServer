@@ -16,7 +16,8 @@ namespace ChatServer.Models
     {
         ANNOUNCEMENTS,
         HELLO,
-        WHOISON
+        WHOISON,
+        NOACTION
     }
 
     [Table("ChatMessage")]
@@ -31,12 +32,12 @@ namespace ChatServer.Models
         public string Body { get; set; }
         public int FromAccountId { get; set; }
 
-        [ForeignKey("FromAccountId")]
+        [NotMapped]
         public virtual Account FromAccount { get; set; }
 
         public int ToAccountId { get; set; }
 
-        [ForeignKey("ToAccountId")]
+        [NotMapped]
         public virtual Account ToAccount { get; set; }
     }
 }

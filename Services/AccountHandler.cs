@@ -12,7 +12,20 @@ namespace ChatServer.Services
 
         public IRepositoryWrapper Repos { get; set; }
 
-        public async Task<Account> RegisterAccount(Account account) => await Repos.Account.CreateAsync(account);
+        public async Task<List<Account>> RegisterAccount(Account account)
+        {
+            List<Account> accounts = new List<Account>();
+            try
+            {
+                await Repos.Account.CreateAsync(account);
+                accounts = await GetAccountsWithOnlineStatusAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return accounts;
+        }
 
         public async Task<bool> Login(Account account)
         {
