@@ -20,6 +20,12 @@ namespace ChatServer.Models
         NOACTION
     }
 
+    public enum ChatMessageStatus : int
+    {
+        INIT,
+        SERVER_RECIEVED,
+    }
+
     [Table("ChatMessage")]
     public class ChatMessage
     {
@@ -29,6 +35,7 @@ namespace ChatServer.Models
 
         public ChatMessageAction Action { get; set; }
         public ChatMessageType Type { get; set; }
+        public ChatMessageStatus Status { get; set; }
         public string Body { get; set; }
         public int FromAccountId { get; set; }
 
@@ -39,5 +46,9 @@ namespace ChatServer.Models
 
         [NotMapped]
         public virtual Account ToAccount { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
+        public DateTime ReadDate { get; set; }
     }
 }

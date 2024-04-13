@@ -18,5 +18,8 @@ namespace ChatServer.Models.Entity
 
         [NotMapped]
         public bool IsOnline { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace ChatServer.Services
             List<Account> accounts = new List<Account>();
             try
             {
+                account.UpdatedDate = DateTime.Now;
                 await Repos.Account.CreateAsync(account);
                 accounts = await GetAccountsWithOnlineStatusAsync();
             }
@@ -44,7 +45,7 @@ namespace ChatServer.Services
             foreach (var account in accounts)
             {
                 account.Password = "";
-                account.Email = "";
+                //account.Email = "";
                 account.IsOnline = onlineAccountIds.Contains(account.AccountId);
             }
 

@@ -53,7 +53,8 @@ namespace ChatServer.Hubs
                 AccountId = account.AccountId,
                 ChatRoom = account.Name,
                 ConnectionId = Context.ConnectionId,
-                UserName = account.Name
+                UserName = account.Name,
+                CreatedDate = DateTime.Now,
             });
         }
 
@@ -99,8 +100,12 @@ namespace ChatServer.Hubs
 
         public async Task SendMessage(ChatMessage chatMessage)
         {
-            if(chatMessage.Action == ChatMessageAction.NOACTION)
+            if (chatMessage.Action == ChatMessageAction.NOACTION)
+            {
+                chatMessage.Status = ChatMessageStatus.SERVER_RECIEVED;
+                chatMessage.UpdatedDate = DateTime.Now;
                 await _chatMessageRepository.CreateAsync(chatMessage);
+            }
 
             var toUser = (await _userConnectionRepo.FindByConditionAsync(x => x.AccountId == chatMessage.ToAccountId)).FirstOrDefault();
 

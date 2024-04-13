@@ -14,5 +14,7 @@ namespace ChatServer.Models
         public string ChatRoom { get; set; }
         public int AccountId { get; set; }
         public string ConnectionId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }
