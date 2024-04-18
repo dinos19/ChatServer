@@ -48,6 +48,10 @@ namespace ChatServer.Hubs
 
         public async Task<UserConnection> SayHello(Account account)
         {
+            var connection = (await _userConnectionRepo.FindByConditionAsync(x => x.AccountId == account.AccountId)).FirstOrDefault();
+            if (connection != null)
+                await _userConnectionRepo.DeleteAsync(connection);
+
             return await _userConnectionRepo.CreateAsync(new UserConnection
             {
                 AccountId = account.AccountId,
@@ -83,28 +87,37 @@ namespace ChatServer.Hubs
             return "joined";
         }
 
-        public async Task JoinSpecificChatRoom(UserConnection connection)
+        public async Task JoinSpecificChatRoom(Account account)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
-            _sharedDB._connections[Context.ConnectionId] = connection;
-            ChatMessage message = new ChatMessage
+
+            var connectionsRes = await _userConnectionRepo.FindByConditionAsync(x => x.AccountId == account.AccountId);
+            var connection = connectionsRes.FirstOrDefault();
+            if (connection != null)
             {
-                Action = ChatMessageAction.ANNOUNCEMENTS,
-                Body = $"{connection.UserName} has joined {connection.ChatRoom}",
-                FromAccountId = 1,
-                ToAccountId = connection.AccountId,
-                Type = ChatMessageType.TEXT
-            };
-            await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
+
+
+                await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
+                _sharedDB._connections[Context.ConnectionId] = connection;
+                ChatMessage message = new ChatMessage
+                {
+                    Action = ChatMessageAction.ANNOUNCEMENTS,
+                    Body = $"{connection.UserName} has joined {connection.ChatRoom}",
+                    FromAccountId = 1,
+                    ToAccountId = connection.AccountId,
+                    Type = ChatMessageType.TEXT
+                };
+                await Clients.Group(connection.ChatRoom).SendAsync("ReceiveMessage", JsonConvert.SerializeObject(message));
+            }
         }
 
-        public async Task SendMessage(ChatMessage chatMessage)
+        public async Task<ChatMessage> SendMessage(ChatMessage chatMessage)
         {
+            ChatMessage res = chatMessage;
             if (chatMessage.Action == ChatMessageAction.NOACTION)
             {
                 chatMessage.Status = ChatMessageStatus.SERVER_RECIEVED;
                 chatMessage.UpdatedDate = DateTime.Now;
-                await _chatMessageRepository.CreateAsync(chatMessage);
+                res = await _chatMessageRepository.CreateAsync(chatMessage);
             }
 
             var toUser = (await _userConnectionRepo.FindByConditionAsync(x => x.AccountId == chatMessage.ToAccountId)).FirstOrDefault();
@@ -118,6 +131,8 @@ namespace ChatServer.Hubs
             //{
             //    await Clients.Group(connection.ChatRoom).SendAsync("ReceiveSpecificMessage", connection.UserName, msg);
             //}
+
+            return res;
         }
     }
 }

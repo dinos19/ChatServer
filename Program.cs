@@ -9,6 +9,11 @@ using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5001); // Change the port as necessary
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -22,14 +27,14 @@ builder.Services.AddAuthentication(
     .AddCertificate();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "AllowSpecificOrigin",
-                      builder =>
-                      {
-                          builder.WithOrigins("https://localhost:7075")
-                                 .AllowAnyHeader()
-                                 .AllowAnyMethod()
-                                 .AllowCredentials();
-                      });
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .DisallowCredentials(); // Ensure credentials are not allowed
+        });
 });
 builder.Services.AddSingleton<SharedDB>();
 builder.Services.AddDbContext<ApiDbContext>(options =>
@@ -57,7 +62,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
+app.MapHub<SyncHub>("/sync");
 app.UseAuthentication();
-app.UseCors("AllowSpecificOrigin"); // Apply the CORS policy
+app.UseCors("AllowAllOrigins"); // Apply the CORS policy
 
 app.Run();
