@@ -10,6 +10,7 @@ namespace ChatServer.Infrastructure
         public DbSet<Account> Users { get; set; }
         public DbSet<ChatMessage> Messages { get; set; }
         public DbSet<UserConnection> UserConnections { get; set; }
+        public DbSet<UploadResult> Uploads { get; set; }
 
         public ApiDbContext(DbContextOptions options)
             : base(options)

@@ -1,0 +1,21 @@
+cd [200~C:\Users\kwsta\source\repos\AmeA-Project~
+cd C:\Users\kwsta\source\repos\AmeA-Project~
+cd C:\Users\kwsta\source\repos\AmeA-Project
+cd C:ls
+cd ../
+cd 
+cd Users\kwsta\source\repos\AmeA-Project
+cd Users
+cd kwstacd kwsta
+ls
+cd kwsta
+cd source/repos/AmeA-Project
+docker build --rm -t amea-dev/amea-project:latest .
+export DOCKER_BUILDKIT=0
+export DOCKER_BUILDKIT=0
+export COMPOSE_DOCKER_CLI_BUILD=0
+export COMPOSE_DOCKER_CLI_BUILD=0
+docker build --rm -t amea-dev/amea-project:latest .
+docker build --rm -t amea-dev/amea-project:latest .
+docker build --rm -t amea-project:latest .
+docker build --rm -t amea-project:latest .

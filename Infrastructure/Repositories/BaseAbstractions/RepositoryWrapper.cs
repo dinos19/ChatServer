@@ -49,6 +49,20 @@
             }
         }
 
+        private UploadsRepository _uploads;
+
+        public UploadsRepository Uploads
+        {
+            get
+            {
+                if (_uploads == null)
+                {
+                    _uploads = new UploadsRepository(dbContext);
+                }
+                return _uploads;
+            }
+        }
+
         public RepositoryWrapper(ApiDbContext _dbContext)
         {
             dbContext = _dbContext;
